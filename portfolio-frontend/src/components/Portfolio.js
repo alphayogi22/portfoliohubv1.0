@@ -113,7 +113,7 @@ function Portfolio() {
           <CardMedia
             component="img"
             height="300"
-            image={`https://localhost:44342/api/portfolio/${portfolio.id}/image`}
+            image={`http://localhost:5000/api/portfolio/${portfolio.id}/image`}
             alt={portfolio.title}
             sx={{ objectFit: 'cover' }}
           />
@@ -128,7 +128,7 @@ function Portfolio() {
               <Button
                 variant="contained"
                 color="primary"
-                href={`https://localhost:44342/api/portfolio/${portfolio.id}/resume`}
+                href={`http://localhost:5000/api/portfolio/${portfolio.id}/resume`}
                 download="resume.pdf"
               >
                 Download Resume

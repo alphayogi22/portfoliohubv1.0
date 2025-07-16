@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://localhost:44342/api/portfolio';
+const API_BASE_URL = 'http://localhost:5000/api/portfolio';
 
 export const fetchPortfolios = async () => {
   try {
