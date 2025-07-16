@@ -17,6 +17,12 @@ namespace PortfolioApi.Controllers
             _portfolioCollection = database.GetCollection<Portfolio>("Portfolios");
         }
 
+        // Helper to normalize username
+        public static string NormalizeUsername(string name)
+        {
+            return name.Trim().ToLower().Replace(" ", "-");
+        }
+
         // GET: api/portfolio
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Portfolio>>> GetPortfolios()
@@ -61,11 +67,34 @@ namespace PortfolioApi.Controllers
             return File(portfolio.Resume, portfolio.ResumeContentType, "resume.pdf");
         }
 
+        // GET: api/portfolio/by-username/{usernameKey}
+        [HttpGet("by-username/{usernameKey}")]
+        public async Task<ActionResult<Portfolio>> GetPortfolioByUsername(string usernameKey)
+        {
+            // Convert dashes to spaces, lowercase, and trim
+            var normalized = usernameKey.Replace("-", " ").Trim().ToLower();
+
+            var portfolio = await _portfolioCollection
+                .Find(p => p.Name.ToLower() == normalized)
+                .FirstOrDefaultAsync();
+
+            if (portfolio == null)
+            {
+                return NotFound();
+            }
+            return Ok(portfolio);
+        }
+
         // POST: api/portfolio
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<Portfolio>> CreatePortfolio([FromForm] PortfolioForm portfolioForm)
         {
+            if (string.IsNullOrWhiteSpace(portfolioForm.Name))
+            {
+                return BadRequest("Name is required.");
+            }
+
             if (portfolioForm.Image == null || portfolioForm.Resume == null)
             {
                 return BadRequest("Image and resume files are required.");
@@ -91,12 +120,14 @@ namespace PortfolioApi.Controllers
 
             var portfolio = new Portfolio
             {
+                Name = portfolioForm.Name,
                 Title = portfolioForm.Title,
                 Description = portfolioForm.Description,
                 Image = imageStream.ToArray(),
                 ImageContentType = portfolioForm.Image.ContentType,
                 Resume = resumeStream.ToArray(),
-                ResumeContentType = portfolioForm.Resume.ContentType
+                ResumeContentType = portfolioForm.Resume.ContentType,
+                UsernameKey = NormalizeUsername(portfolioForm.Name)
             };
 
             await _portfolioCollection.InsertOneAsync(portfolio);
@@ -108,6 +139,11 @@ namespace PortfolioApi.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdatePortfolio(string id, [FromForm] PortfolioForm portfolioForm)
         {
+            if (string.IsNullOrWhiteSpace(portfolioForm.Name))
+            {
+                return BadRequest("Name is required.");
+            }
+
             var existingPortfolio = await _portfolioCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
             if (existingPortfolio == null)
             {
@@ -117,12 +153,14 @@ namespace PortfolioApi.Controllers
             var portfolio = new Portfolio
             {
                 Id = id,
+                Name = portfolioForm.Name,
                 Title = portfolioForm.Title,
                 Description = portfolioForm.Description,
                 Image = existingPortfolio.Image,
                 ImageContentType = existingPortfolio.ImageContentType,
                 Resume = existingPortfolio.Resume,
-                ResumeContentType = existingPortfolio.ResumeContentType
+                ResumeContentType = existingPortfolio.ResumeContentType,
+                UsernameKey = NormalizeUsername(portfolioForm.Name)
             };
 
             // Update image if provided
@@ -170,6 +208,8 @@ namespace PortfolioApi.Controllers
 
     public class PortfolioForm
     {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Name { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public IFormFile? Image { get; set; }
