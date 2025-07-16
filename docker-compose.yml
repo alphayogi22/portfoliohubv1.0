@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./PortfolioApi
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80  # Tell ASP.NET to listen on port 80 inside the container
+      - MongoDBSettings__ConnectionString=mongodb+srv://portfolio_user_yogesh:StrongPassword123!@protfoliohub.wrdtjl2.mongodb.net/?retryWrites=true&w=majority&appName=protfoliohub
+      - MongoDBSettings__DatabaseName=portfoliohub
+
+  frontend:
+    build: ./portfolio-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend 
