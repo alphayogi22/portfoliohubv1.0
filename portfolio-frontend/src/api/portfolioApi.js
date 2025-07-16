@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/portfolio';
+const API_BASE_URL = 'http://localhost:5050/api/portfolio';
 
 export const fetchPortfolios = async () => {
   try {
@@ -19,6 +19,7 @@ export const fetchPortfolios = async () => {
 export const createPortfolio = async (portfolioData) => {
   try {
     const formData = new FormData();
+    formData.append('Name', portfolioData.name);
     formData.append('Title', portfolioData.title);
     formData.append('Description', portfolioData.description);
     formData.append('Image', portfolioData.image);
@@ -32,6 +33,22 @@ export const createPortfolio = async (portfolioData) => {
     return response.data;
   } catch (error) {
     console.error('Error creating portfolio:', error);
+    throw error;
+  }
+};
+
+export const fetchPortfolioByUsername = async (username) => {
+  // Normalize username: trim, toLowerCase, replace spaces with dashes
+  const usernameKey = username.trim().toLowerCase().replace(/\s+/g, '-');
+  try {
+    const response = await axios.get(`${API_BASE_URL}/by-username/${usernameKey}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching portfolio by username:', error);
     throw error;
   }
 };

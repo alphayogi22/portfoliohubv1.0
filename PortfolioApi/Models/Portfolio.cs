@@ -9,6 +9,9 @@ namespace PortfolioApi.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = string.Empty;
 
+        [BsonElement("name")]
+        public string Name { get; set; } = string.Empty;
+
         [BsonElement("title")]
         public string Title { get; set; } = string.Empty;
 
@@ -26,5 +29,8 @@ namespace PortfolioApi.Models
 
         [BsonElement("resumeContentType")]
         public string ResumeContentType { get; set; } = string.Empty;
+
+        [BsonElement("usernameKey")]
+        public string UsernameKey { get; set; } = string.Empty;
     }
 }
