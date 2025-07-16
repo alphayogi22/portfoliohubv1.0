@@ -1,0 +1,20 @@
+# === .NET Core ===
+bin/
+obj/
+*.user
+*.suo
+*.vs/
+*.dbmdl
+*.pdb
+launchSettings.json
+
+# === React (Frontend) ===
+portfolio-frontend/node_modules/
+portfolio-frontend/build/
+portfolio-frontend/.env*
+
+# === General ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
